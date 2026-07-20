@@ -1,0 +1,3 @@
+Authentication - Verifying a user or not. ||  A user is register or not in our system
+Authorization - A authenticated user is allowed to perform a operation based on a particular roles.
+

@@ -1,0 +1,33 @@
+User
+   |
+   | Email + Password
+   V
+AuthController
+   |
+authenticate()
+   |
+AuthenticationManager
+   |
+DaoAuthenticationProvider
+   |
+loadUserByUsername()
+   |
+Database
+   |
+User Found?
+   |
+PasswordEncoder.matches()
+   |
+Password Correct?
+   |
+YES
+   |
+UserDetails
+   |
+generate JWT
+   |
+Create Cookie
+   |
+Return JWT
+   |
+Browser Stores Cookie
