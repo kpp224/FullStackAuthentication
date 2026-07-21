@@ -8,8 +8,10 @@ import in.kp.authify.Services.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,5 +34,12 @@ public class ProfileController {
         return profileService.getProfile(email);
     }
 
-
+    @GetMapping("/send-reset-otp")
+    public void sendOtp(@RequestParam String email){
+        try{
+            profileService.sendResetOtp(email);
+        } catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 }
