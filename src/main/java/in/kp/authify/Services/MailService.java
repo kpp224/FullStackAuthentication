@@ -1,12 +1,10 @@
 package in.kp.authify.Services;
 
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,7 +29,16 @@ public class MailService {
         message.setFrom(fromEmail);
         message.setTo(toEmail);
         message.setSubject("Password reset OTP");
-        message.setText("Your OTP for resetting a Password - " + otp + ". Use this OTP for resetting your Password.");
+        message.setText("Your OTP for resetting a Password is " + otp + ". Use this OTP for resetting your Password.");
+        mailSender.send(message);
+    }
+
+    public void sendOtp(String toEmail, String otp){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setFrom(fromEmail);
+        message.setSubject("Verify OTP");
+        message.setText("Your verify OTP is " + otp + ". Use this OTP to verify your Account");
         mailSender.send(message);
     }
 }

@@ -48,12 +48,73 @@ public class ProfileServiceImpl implements ProfileService {
 
         // save in database
         userRepository.save(existingEntity);
--
+
         try{
             mailService.sendResetOtpEmail(email,otp);
         } catch (Exception e){
             throw new RuntimeException("Unable to send email");
         }
+    }
+
+    @Override
+    public void resetPassword(String email, String otp, String password) {
+        UserEntity existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("email does not exist" + email));
+
+        if(existingUser.getResetOtp() == null || !existingUser.getResetOtp().equals(otp)){
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        if(existingUser.getResetOtpExpiredAt() < System.currentTimeMillis()){
+            throw new RuntimeException("OTP is expired");
+        }
+
+        existingUser.setPassword(passwordEncoder.encode(password));
+        existingUser.setResetOtp(null);
+        existingUser.setResetOtpExpiredAt(0L);
+
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    public void sendOtp(String email) {
+        UserEntity existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("email does not exist" + email));
+
+        String otp = String.valueOf(ThreadLocalRandom.current().nextInt(100000,1000000));
+
+        Long expiryTime = System.currentTimeMillis() + (24 * 60 * 60 * 1000);
+
+        existingUser.setVerifyOtp(otp);
+        existingUser.setVerifyOtpExpiredAt(expiryTime);
+
+        userRepository.save(existingUser);
+
+        try {
+            mailService.sendOtp(existingUser.getEmail(), otp);
+        } catch (Exception e){
+            throw new RuntimeException("email is not send");
+        }
+    }
+
+    @Override
+    public void verifyOtp(String email, String otp) {
+        UserEntity existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("email does not exist" + email));
+
+        if (existingUser.getVerifyOtp() == null || !existingUser.getVerifyOtp().equals(otp)) {
+            throw new RuntimeException("OTP is invalid");
+        }
+
+        if(existingUser.getVerifyOtpExpiredAt() < System.currentTimeMillis()){
+            throw new RuntimeException("OTP is expired");
+        }
+
+        existingUser.setIsAccountVerified(true);
+        existingUser.setVerifyOtp(null);
+        existingUser.setVerifyOtpExpiredAt(0L);
+
+        userRepository.save(existingUser);
     }
 
     @Override
